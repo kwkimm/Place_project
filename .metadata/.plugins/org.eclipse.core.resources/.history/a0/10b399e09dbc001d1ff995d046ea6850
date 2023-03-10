@@ -1,0 +1,43 @@
+.boardList{
+	width: 80%;
+	margin: auto;
+}
+
+.listTable{
+	text-align: center;
+}
+
+.btn-grp{
+	margin: 50px 0;
+	display: flex;
+	justify-content: space-between;
+	vertical-align: middle;
+	
+}
+
+
+.search-box{
+	text-align: center;
+	margin: 20px 0;
+}
+
+.search-box select{
+	border-radius: 5px;
+	vertical-align: middle;
+}
+
+.search-box input{
+	border-radius: 5px;
+	vertical-align: middle;
+}
+
+.listImg{
+	margin-top: 30px;
+}
+
+.listImg img{
+	height: 200px;
+	display: block;
+	margin: auto;
+	
+}

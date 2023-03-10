@@ -1,0 +1,136 @@
+<html layout:decorate="~{layout}">
+
+<div layout:fragment="content" class="boardList">
+
+	<div class="listImg">
+		<img src="/img/11.png">
+	</div>
+	
+	<div class="btn-grp">
+		<div class="board-write-btn">
+			<a th:href="@{/board/create}" class="btn btn-dark btn-write">글쓰기</a>
+		</div>
+		<div class="board-sort-btn">
+			<button type="button" class="btn btn-outline-dark btn-sort btn-sm" data-sort="visitCount">조회순</button>
+			<button type="button" class="btn btn-outline-dark btn-sort btn-sm" data-sort="liked">추천순</button>
+		</div>
+	</div>
+	
+	<table class="table listTable">
+		<thead>
+			<tr>
+				<th scope="col">번호</th>
+				<th scope="col">제목</th>
+				<th scope="col">작성자</th>
+				<th scope="col">등록일</th>
+				<th scope="col">좋아요</th>
+				<th scope="col">조회수</th>
+			</tr>
+		</thead>
+		<tbody class="table-group-divider">
+			<tr th:each="list, loop : ${paging}">
+				<td scope="row" th:text="${paging.totalElements - paging.number * paging.size - loop.index}"></td>
+				<td><a th:href="@{|/board/detail/${list.bCode}|}" th:text="${list.title}"></a></td>
+				<td th:text="${list.author.nickName}"></td>
+				<td th:text="${#temporals.format(list.createDate, 'yyyy-MM-dd hh:mm')}"></td>
+				<td th:text="${list.liked}"></td>
+				<td th:text="${list.visitCount}"></td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<!-- 페이지 버튼 -->
+	<nav aria-label="Page navigation example" th:if="${!paging.isEmpty}">
+		<ul class="pagination pagination-sm justify-content-center">
+
+
+			<li class="page-item" th:classappend="${startPageNum == 0} ? 'disabled'">
+				<a class="page-link" href="javascript:void(0)" th:data-page="${startPageNum-1}" aria-label="Previous">
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+
+
+
+			<li class="page-item" th:each="page : ${#numbers.sequence(startPageNum, endPageNum)}"
+				th:classappend="${page == paging.number} ? 'active'">
+				<a class="page-link" href="javascript:void(0)" th:text="${page+1}" th:data-page="${page}"></a>
+			</li>
+
+
+			<li class="page-item" th:classappend="${endBlock == endPageNum/10} ? 'disabled'">
+				<a class="page-link" href="javascript:void(0)" th:data-page="${endPageNum + 1}" aria-label="Previous">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+
+
+
+	<!--검색 input -->
+	<!-- id="searchForm" 이거 안지웠었음 -->
+	<div class="search-box" th:value="${searchType}">
+		<select id="s_type">
+			<option value="title" th:selected="${searchType} == 'title'">제목</option>
+			<option value="content" th:selected="${searchType} == 'content'">내용</option>
+			<option value="nickName" th:selected="${searchType} == 'author.nickName'">작성자</option>
+		</select>
+		<input type="text" id="search_kw" th:value="${kw}" placeholder="검색어 입력">
+		<button type="text" class="btn btn-dark btn-sm" id="btn_search">
+			검색
+		</button>
+	</div>
+
+
+
+
+	<form th:action="@{/board/list}" method="get" id="searchForm">
+		<input type="hidden" name="searchType" id="searchType" th:value="${searchType}">
+		<input type="hidden" name="kw" th:value="${kw}" id="kw">
+		<input type="hidden" name="page" th:value="${paging.number}" id="page">
+		<input type="hidden" name="sortType" id="sort" th:value="${sortType}">
+	</form>
+
+
+
+</div>
+
+</html>
+<script src="/js/boardScript.js"></script>
+
+
+
+<!--
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+ 	<table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일자</th>
+                <th>조회수</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="board : ${boardList}">
+                <td>1</td>
+                <td>
+                    <a th:href="@{|/board/detail/${board.bCode}|}" th:text="${board.title}"></a>
+                </td>
+                <td>
+					<span th:if="${board.author != null}" th:text="${board.author.nickName}"></span>
+				</td>
+                <td th:text="${#temporals.format(board.createDate, 'yyyy-MM-dd hh:mm')}"></td>
+           		<td th:text="${board.visitCount}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+<a th:href="@{/board/create}" class="btn btn-primary">코스등록</a>
+</div>
+</html>
+-->

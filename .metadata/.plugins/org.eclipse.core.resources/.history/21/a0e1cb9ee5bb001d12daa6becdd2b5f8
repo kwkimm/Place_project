@@ -1,0 +1,202 @@
+package com.example.sb.board;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.sb.comm.CommForm;
+import com.example.sb.searchPlace.SearchPlace;
+import com.example.sb.searchPlace.SearchPlaceRepository;
+
+import com.example.sb.user.UserEntity;
+import com.example.sb.user.UserService;
+
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RequestMapping("/board")
+@RequiredArgsConstructor
+@Controller
+public class BoardController {
+   
+   private final UserService userService;
+   private final BoardService boardService;
+//   private final SearchPlace searchPlace;
+   private final SearchPlaceRepository searchPlaceRepository;
+   
+   @GetMapping("/list")
+   public String boardList(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+                     @RequestParam(value = "kw", defaultValue = "") String kw,
+                     @RequestParam(value = "searchType", defaultValue = "")String searchType) {
+
+      Page<BoardEntity> paging = boardService.getBoardList(page, kw, searchType);
+
+      // 한 페이지 당 표시할 게시물 수
+      int pageNum_cnt = 10;
+
+      
+      int start = (page / pageNum_cnt) * pageNum_cnt;
+      int end = start + (pageNum_cnt - 1);
+      
+      // -1 추가함      
+//      int count = boardService.getBoardListCount().intValue() - 1;
+      int count =(int) paging.getTotalElements() -1 ;
+
+      // if추가함 마지막블럭이 상황에 따라 중간에 끝나야함
+      if (end > count / pageNum_cnt) {         
+         
+         end = count / pageNum_cnt;
+      }
+
+      int endBlock = count / pageNum_cnt / pageNum_cnt;
+      
+//      System.out.println("page : " + page);
+//      System.out.println("start : " + start);
+//      System.out.println("end : " + end);
+//      System.out.println("count : " + count);
+//      System.out.println("endBlock : " + endBlock);
+      
+
+      model.addAttribute("paging", paging);
+      model.addAttribute("kw", kw); // 검색어 유지하기 위해 키워드 같이 보냄
+      model.addAttribute("searchType", searchType);
+      
+      model.addAttribute("startPageNum", start);
+      model.addAttribute("endPageNum", end);
+      model.addAttribute("endBlock", endBlock);
+
+      return "board_list";
+   }
+   
+   // 게시판 글쓰기버튼 누를때
+   @PreAuthorize("isAuthenticated()")
+   @GetMapping("/create")
+   public String boardCretea(BoardForm boardForm) {
+      return "board_form";
+   }
+   
+   // 글 다쓴 후 저장하기 버튼 누를때
+   @PostMapping("/create")
+   public String boardCreate(@Valid BoardForm boardForm, BindingResult bindingResult, Principal principal/*, @RequestParam Integer pcode1, @RequestParam(defaultValue = "0") Integer pcode2, @RequestParam(defaultValue = "0") Integer pcode3*/) {
+      if(bindingResult.hasErrors()) { // null값이면 true
+         return "board_form";
+      } 
+      
+      System.out.println(boardForm.getPcode1());
+      System.out.println(boardForm.getPcode2());
+      System.out.println(boardForm.getPcode3());
+      
+      UserEntity userEntity = userService.getUser(principal.getName());
+      
+      boardService.create(boardForm.getTitle(), boardForm.getContent(), userEntity, boardForm.getPcode1(), boardForm.getPcode2(), boardForm.getPcode3());
+      
+      return "redirect:/board/list";
+   }
+   
+   // list에서 제목 눌렀을때
+   @GetMapping(value = "/detail/{bCode}")                        // 2023.02.28_첫 detail페이지에서도 commForm이 넘어가져야한다. 그래야 댓글등록 버튼 클릭시 같이 읽어온다.
+   public String detail(Model model, @PathVariable("bCode") Long bCode, CommForm commForm) {
+      BoardEntity be = boardService.getBoard(bCode);
+      boardService.updateVisit(bCode);
+
+      /*
+      SearchPlace pcode1 = searchPlaceRepository.findBypCode(be.getPCode1());
+      SearchPlace pcode2 = null;
+      if(be.getPCode2() != null)
+         pcode2 = searchPlaceRepository.findBypCode(be.getPCode2());
+      SearchPlace pcode3 = null;
+      if(be.getPCode3() != null)
+         pcode3 = searchPlaceRepository.findBypCode(be.getPCode3());
+      
+      
+      List<SearchPlace> pcode = new ArrayList<>();
+      
+      pcode.add(pcode1);
+      if(be.getPCode2() != null)
+         pcode.add(pcode2);
+      if(be.getPCode3() != null)
+         pcode.add(pcode3);   
+      
+      System.out.println(pcode1.getPlaceName());
+      System.out.println(pcode1.getLongitude());
+      System.out.println(pcode1.getLatitude());
+      */
+      
+      /******************************************/
+      
+      List<SearchPlace> pcode = new ArrayList<>();
+      
+      for(int i=0; i<3; i++) {
+    	  
+         SearchPlace s = new SearchPlace();
+         
+         if(be.getPcode(i) != null) {
+            s = searchPlaceRepository.findBypCode(be.getPcode(i));
+            pcode.add(s);
+         }
+      }
+      
+      model.addAttribute("pcode", pcode);
+      
+      model.addAttribute("board", be);
+      
+      return "board_detail";
+   }
+   
+   /*
+    * board_detail에서 수정버튼 누르면 
+    * 관련 타이틀, 콘텐트 값 form에 셋팅하고 modify_form으로 넘겨줘라
+    */
+   @GetMapping("/modify/{bCode}")
+   public String boardModify(@PathVariable("bCode") Long bCode, BoardForm boardForm) {
+      BoardEntity boardEntity = boardService.getBoard(bCode);
+      
+      boardForm.setTitle(boardEntity.getTitle());
+      boardForm.setContent(boardEntity.getContent());
+      
+      return "modify_form";
+   }
+   /*
+    * modify_form 에서 수정하기 버튼 누르면 
+    * 관련 타이틀, 콘텐트 값 DB에 update시키기
+    */
+   @PostMapping("/modify/{bCode}")
+   public String boardModify(@Valid BoardForm boardForm, BindingResult bindingResult,
+                                                @PathVariable("bCode") Long bCode) {
+      
+      if(bindingResult.hasErrors()) {
+         return "modify_form";
+      }
+
+      // 원본에서 제목과 내용만 수정해서 테이블에 update 시킴 (+ 코스장소도 추가해야함)
+      boardService.boardModify(bCode, boardForm.getTitle(), boardForm.getContent(), boardForm.getPcode1(), boardForm.getPcode2(), boardForm.getPcode3());
+      
+      return "redirect:/board/detail/" + bCode;
+   }
+   
+   
+   /*
+    * 삭제버튼 구현 
+    */
+   @GetMapping("/delete/{bCode}")
+   public String delete(@PathVariable("bCode") Long bCode) {
+      BoardEntity boardEntity = boardService.getBoard(bCode);
+      boardService.delete(boardEntity);
+      return "redirect:/board/list";
+   }
+   
+   
+}

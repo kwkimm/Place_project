@@ -1,0 +1,26 @@
+.detail-container{
+	width: 80%;
+	margin: auto;
+}
+
+.nameBoxP {
+   text-align:center;
+}
+
+.title-text{
+   text-align: center;
+}
+
+.detail_con {
+   display: flex;
+}
+
+.detail_con1 {
+   flex : 2;
+   margin: 20px;
+}
+
+.detail_con2 {
+   flex : 3;
+   margin: 20px;
+}

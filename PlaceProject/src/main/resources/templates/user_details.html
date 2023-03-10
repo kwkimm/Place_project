@@ -1,0 +1,42 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+	<div class="user-detail">
+		<div class="my-3 border-bottom">
+			<div>
+				<h4>회원수정</h4>
+			</div>
+		</div>
+		<form th:action="@{|/user/userup/${#authentication.principal.IdCode}|}" th:object="${userForm}" method="post">
+			<div th:replace="~{form_errors :: formErrorsFragment}"></div>
+			<div class="mb-3">
+				<label for="userId" class="form-label">ID</label>
+				<input type="text" name="userId" th:value="${#authentication.principal.username}" class="form-control"
+					readonly>
+			</div>
+			<div class="mb-3">
+				<label for="nickName" class="form-label">닉네임</label>
+				<input type="text" name="nickName" th:value="${#authentication.principal.nickName}"
+					class="form-control">
+			</div>
+			<div class="mb-3">
+				<label for="password1" class="form-label">비밀번호</label>
+				<input type="password" th:field="*{password}" class="form-control">
+			</div>
+			<div class="mb-3">
+				<label for="password2" class="form-label">비밀번호 확인</label>
+				<input type="password" th:field="*{password2}" class="form-control">
+			</div>
+			<div class="mb-3">
+				<label for="phone" class="form-label">전화번호</label>
+				<input type="tel" name="phone" th:value="${#authentication.principal.phone}" class="form-control">
+			</div>
+			<div class="mb-3">
+				<label for="email" class="form-label">이메일</label>
+				<input type="email" name="email" th:value="${#authentication.principal.email}" class="form-control">
+			</div>
+			<button type="submit" class="btn btn-primary">회원수정</button>
+		</form>
+	</div>
+</div>
+
+</html>

@@ -1,0 +1,96 @@
+package com.example.sb.board;
+
+import java.security.Principal;
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.example.sb.comm.CommForm;
+import com.example.sb.user.UserEntity;
+import com.example.sb.user.UserService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RequestMapping("/board")
+@RequiredArgsConstructor
+@Controller
+public class BoardController {
+	
+	private final UserService userService;
+	private final BoardService boardService;
+	@GetMapping("/list")
+	public String list(Model model, Long bCode) {
+		
+		List<BoardEntity> boardList = boardService.getList();
+		
+		model.addAttribute("boardList", boardList);
+		
+		return "board_list";
+	}
+	
+	// 게시판 글쓰기버튼 누를때
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/create")
+	public String boardCretea(BoardForm boardForm) {
+		return "board_form";
+	}
+	
+	// 글 다쓴 후 저장하기 버튼 누를때
+	@PostMapping("/create")
+	public String boardCreate(@Valid BoardForm boardForm, BindingResult bindingResult, Principal principal) {
+		if(bindingResult.hasErrors()) { // null값이면 true
+			return "board_form";
+		} 
+		
+		UserEntity userEntity = userService.getUser(principal.getName());
+		
+		boardService.create(boardForm.getTitle(), boardForm.getContent(), userEntity);
+		
+		return "redirect:/board/list";
+	}
+	
+	// list에서 제목 눌렀을때
+	@GetMapping(value = "/detail/{bCode}")								// 2023.02.28_첫 detail페이지에서도 commForm이 넘어가져야한다. 그래야 댓글등록 버튼 클릭시 같이 읽어온다.
+	public String detail(Model model, @PathVariable("bCode") Long bCode, CommForm commForm) {
+		BoardEntity be = boardService.getBoard(bCode);
+		boardService.updateVisit(bCode);
+		
+		model.addAttribute("board", be);
+		
+		
+		return "board_detail";
+	}
+	
+	/*
+	 * 수정기능 구현 
+	 */
+	@GetMapping("/modify/{bCode}")
+	public String boardModify(@PathVariable("bCode") Long bCode, BoardForm boardForm) {
+		BoardEntity boardEntity = boardService.getBoard(bCode);
+		
+		boardForm.setTitle(boardEntity.getTitle());
+		boardForm.setContent(boardEntity.getContent());
+		
+		return "modify_form";
+	}
+	
+	
+	/*
+	 * 삭제버튼 구현 
+	 */
+	@GetMapping("/delete/{bCode}")
+	public String delete(@PathVariable("bCode") Long bCode) {
+		BoardEntity boardEntity = boardService.getBoard(bCode);
+		boardService.delete(boardEntity);
+		return "redirect:/board/list";
+	}
+	
+}

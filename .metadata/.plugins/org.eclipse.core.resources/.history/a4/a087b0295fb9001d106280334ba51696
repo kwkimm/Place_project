@@ -1,0 +1,36 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <h5 class="my-3 border-bottom pb-2">코스만들기</h5>
+    
+    
+    <form th:object="${boardForm}" method="post">
+      <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <div class="mb-3">
+            <label for="title" class="form-label">코스제목</label>
+            <input type="text" id="title" th:field="*{title}" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+         <a th:href="@{/searchPlace/searchMap}" class="btn btn-dark btn-write" onclick="window.open(this.href, '_blank', 'width=1200px, height=700px'); return false;">코스추가</a><br><br>
+         <input type="text" class="place" placeholder="첫번째" readonly> ->
+         <input type="text" class="place" placeholder="두번째" readonly> ->
+         <input type="text" class="place" placeholder="세번째" readonly>
+         <br>
+      <!--히든처리-->
+         <input class="pcode" type="hidden" th:field="*{pcode1}">
+         <input class="pcode" type="hidden" th:field="*{pcode2}">
+         <input class="pcode" type="hidden" th:field="*{pcode3}">
+      </div>
+<!--      <div class="mb-3">-->
+<!--         <label for="title" class="form-label">코스추가된내용</label><br>-->
+<!--         <input type="text" th:field="*{pCode}" class="form-control">-->
+<!--      </div>-->
+      
+        <div class="mb-3">
+            <label for="content" class="form-label">코스설명</label>
+            <textarea id="content" th:field="*{content}" class="form-control" rows="10"></textarea>
+        </div>
+        <input type="submit" value="저장하기" class="btn btn-primary my-2">
+        <a href="/board/list" class="btn btn-primary my-2 mx-1" type="button">목록</a>
+    </form>
+</div>

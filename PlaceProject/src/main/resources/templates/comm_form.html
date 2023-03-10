@@ -1,0 +1,18 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <h5 class="my-3 border-bottom pb-2">댓글 수정</h5>
+    <form th:action="@{|/comm/modify/${comm.commCode}|}" th:object="${commForm}" method="post">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <input type="hidden" th:value="${comm.commCode}">
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+        </div>
+        <input type="submit" value="수정하기" class="btn btn-primary my-2">
+        <!--
+			혹시라고 버튼만들어서 게시글로 돌아가게 되면 구현 할 bCode가져오기
+		-->
+        <input type="hidden" th:value="${comm.boardEntity.bCode}">
+    </form>
+</div>
+</html>

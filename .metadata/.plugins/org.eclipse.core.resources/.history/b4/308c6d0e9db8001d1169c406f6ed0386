@@ -1,0 +1,95 @@
+package com.example.sb.board;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.sb.user.UserEntity;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Service
+public class BoardService {
+	
+	private final BoardRepository boardRepository;
+	
+	public void create(String title, String content, UserEntity userEntity) {
+		BoardEntity boardEntity = new BoardEntity();
+		
+		boardEntity.setTitle(title);
+		boardEntity.setContent(content);
+		boardEntity.setCreateDate(LocalDateTime.now());
+		boardEntity.setAuthor(userEntity);
+		
+		boardRepository.save(boardEntity);
+
+	}
+
+	public List<BoardEntity> getList() {
+		// TODO Auto-generated method stub
+		return boardRepository.findAll();
+	}
+	
+	public BoardEntity getBoard(Long bCode) {
+		Optional<BoardEntity> be = boardRepository.findById(bCode);
+		
+		return be.get();
+	}
+	
+	// visitCount update 해주는 코드
+	@Transactional
+	public int updateVisit(Long bCode) {
+		return boardRepository.visitCount(bCode);
+	}
+	
+	// 게시글 수정시 DB에 저장하는 코드
+	public void boardModify(Long bCode, String title, String content) {
+		
+		BoardEntity boardEntity = getBoard(bCode);
+		
+		boardEntity.setTitle(title);
+		boardEntity.setContent(content);
+		boardEntity.setModifyDate(LocalDateTime.now());
+		
+		boardRepository.save(boardEntity);
+		
+	}
+	
+	// 게시글 삭제버튼 클릭시 삭제하는 코드
+	public void delete(BoardEntity boardEntity) {
+		boardRepository.delete(boardEntity);
+	}
+
+	public Page<BoardEntity> getBoardList(int page, String kw, String searchType) {
+		List<Sort.Order> sort = new ArrayList<>();
+
+		sort.add(Sort.Order.desc("createDate"));
+
+		Pageable pageable = PageRequest.of(page, 10, Sort.by(sort));
+		
+		kw = "%" + kw + "%";
+	
+		
+		
+		if(searchType.equals("title")) {
+			return boardRepository.findByTitleLike(pageable, kw);
+		} else if (searchType.equals("content")) {
+			return boardRepository.findByContentLike(pageable, kw);
+		} else if (searchType.equals("nickName")){
+			return boardRepository.findByNickNameLike(pageable, kw);
+		} else {
+			return boardRepository.findAll(pageable);
+		}
+	}
+
+
+}

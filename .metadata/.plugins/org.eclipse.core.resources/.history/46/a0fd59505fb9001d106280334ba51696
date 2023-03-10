@@ -1,0 +1,28 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+	<h5 class="my-3 border-bottom pb-2">코스만들기</h5>
+	<form th:action="@{|/board/modify/${bCode}|}" th:object="${boardForm}" method="post">
+		<!--<input type="text" th:value="${bCode}">-->
+		<div class="mb-3">
+			<label for="title" class="form-label">코스제목</label><br>
+			<input type="text" th:field="*{title}" class="form-control">
+		</div>
+		<div class="mb-3">
+			<button type="button" class="my-3 border">코스추가</button><br>
+
+			<label for="title" class="form-label">코스추가된내용</label><br>
+			<!--<input type="text" th:field="*{pCode}" class="form-control">-->
+		</div>
+
+		<div class="mb-3">
+			<label for="content" class="form-label">코스설명</label><br>
+			<textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+		</div><br>
+		<input type="submit" value="수정하기" class="btn btn-primary my-2">
+		<a th:href="@{|/board/list|}" class="btn btn-outline-secondary">
+			목록으로
+		</a>
+	</form>
+</div>
+
+</html>

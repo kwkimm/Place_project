@@ -1,0 +1,33 @@
+
+
+// promotion
+let promotionCard = [
+	{ name: 'SUNGSU', memo: '성수동 카페거리' },
+	{ name: 'uncheon', memo: '운천저수지' },
+	{ name: 'GONGJU', memo: '공주 산림 휴양마을' },
+	{ name: 'midongsan', memo: '미동산 수목원' },
+	{ name: 'saruru', memo: '사르르목장' }
+];
+
+for (let i = 0; i < promotionCard.length; i++) {
+	let card = `<div class="card">
+						<img src="${`/img/${promotionCard[i].name}.jpg`}" class="card-img-top">
+						<div class="card-body">
+							<h5 class="card-title">${promotionCard[i].memo}</h5>
+						</div>
+					  </div>`;
+	document.querySelector('.p-cards').insertAdjacentHTML('beforeend', card);
+};
+
+let url = [
+	'http://www.sd.go.kr/tour',
+	'http://tour.gwangju.go.kr',
+	'https://www.foresttrip.go.kr/indvz/main.do?hmpgId=ID02030011',
+	'https://midongsan.chungbuk.go.kr/midongsan/index.do',
+	'https://instagram.com/sarurufarm_official?igshid=YmMyMTA2M2Y='
+]
+
+for(let i=0; i<url.length; i++){
+	console.log(url[i]);
+}
+

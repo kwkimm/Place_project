@@ -1,0 +1,51 @@
+
+span{
+	color: white;
+}
+
+ul {
+	list-style: none;
+}
+
+.addr{
+	color: white;
+}
+
+.text{
+	display: flex;
+	justify-content: space-between;
+}
+
+.text div span:nth-of-type(1) {
+	padding-right: 15px;
+	margin-right: 15px;
+	border-right: 1px solid lightgrey;
+}
+
+.text span {
+	padding-right: 15px;
+	margin-right: 15px;
+    border-right: 0px;
+}
+
+.text div a {
+	text-decoration: none;
+	color: white;
+}
+
+a:hover{
+	color: white;
+}
+
+hr{
+	color:white;
+}
+
+.dropup{
+    border-right: 0px;
+}
+
+.footer_d{
+	display: flex;
+	justify-content: space-between;
+}

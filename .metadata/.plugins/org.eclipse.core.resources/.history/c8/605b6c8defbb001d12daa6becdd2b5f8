@@ -1,0 +1,96 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container my-3">
+	<div class="detail-container">
+		<h5 class="my-3 border-bottom pb-2">내가 만든 코스</h5>
+		<form method="post">
+			<input type="submit" value="추천" class="btn btn-primary my-2">
+			<span th:text="${board.liked}"></span>
+		</form>
+		<h2 class="border-bottom py-2" th:text="${board.title}"></h2>
+		<div class="card my-3">
+			<div class="card-body">
+				<div class="card-text">코스</div>
+				<div th:each="p : ${pcode}">
+					<input class="pcode" type="hidden" th:value="${p.pCode}">
+					<input class="pName m-3" type="text" th:value="${p.placeName}" readonly>
+					<input class="lat" type="hidden" th:value="${p.latitude}">
+					<input class="lng" type="hidden" th:value="${p.longitude}">
+				</div>
+				<div id="map" style="width:100%;height:350px;"></div>
+				<hr>
+				<div class="card-text" th:text="${board.content}" }></div>
+				<div class="d-flex justify-content-end">
+					<div th:if="${board.modifyDate != null}" class="badge bg-light text-dark p-2 text-start">
+						<div>수정일자</div>
+						<div th:text="${#temporals.format(board.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+					</div>
+					<div class="badge bg-light text-dark p-2 text-start">
+						<div th:if="${board.author != null}" th:text="${board.author.nickName}"></div>
+						<div th:text="${#temporals.format(board.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+					</div>
+				</div>
+
+				<!-- 질문 수정 삭제버튼 -->
+				<div class="my-3">
+
+					<!-- 수정 버튼 -->
+					<a th:href="@{|/board/modify/${board.bCode}|}" class="btn btn-outline-secondary"
+						sec:authorize="isAuthenticated()"
+						th:if="${board.author != null and board.author.userId == #authentication.getPrincipal().getUsername()}">수정</a>
+
+					<a href="javascript:void(0);" th:data-uri="@{|/board/delete/${board.bCode}|}"
+						class="btn btn-outline-secondary delete" sec:authorize="isAuthenticated()"
+						th:if="${board.author != null and board.author.userId == #authentication.getPrincipal().getUsername()}">삭제</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- 답변의 갯수 표시 2023 02 28 기능 구현-->
+		<h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(board.commList)}개의 답변이 있습니다.|"></h5>
+		<!-- 답변 반복 시작 -->
+		<div class="card my-3" th:each="comm : ${board.commList}">
+			<div class="card-body">
+				<div class="card-text" th:text="${comm.content}"></div>
+				<div class="d-flex justify-content-end">
+					<div th:if="${comm.modifyDate != null}" class="badge bg-light text-dark p-2 text-start">
+						<div>수정날짜</div>
+						<div th:text="${#temporals.format(comm.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+					</div>
+					<div class="badge bg-light text-dark p-2 text-start">
+						<div th:if="${comm.author != null}" th:text="${comm.author.nickName}"></div>
+						<div th:text="${#temporals.format(comm.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+					</div>
+				</div>
+				<!-- 댓글 수정 버튼 -->
+				<a th:href="@{|/comm/modify/${comm.commCode}|}" class="btn btn-outline-secondary p-1 reDelete"
+					sec:authorize="isAuthenticated()"
+					th:if="${comm.author != null and comm.author.userId == #authentication.getPrincipal().getUsername()}">수정</a>
+				<!-- 댓글 삭제 버튼-->
+				<a href="javascript:void(0);" th:data-uri="@{|/comm/delete/${comm.commCode}|}"
+					class="btn btn-outline-secondary p-1 delete" sec:authorize="isAuthenticated()"
+					th:if="${comm.author != null and comm.author.userId == #authentication.getPrincipal().getUsername()}">삭제</a>
+			</div>
+		</div>
+		<!-- 답변 반복 끝  -->
+		<!-- 답변 작성 -->
+		<form th:action="@{|/comm/create/${board.bCode}|}" th:object="${commForm}" method="post" class="my-3">
+			<div class="alert alert-danger" th:if="${#fields.hasErrors('content')}">
+				<div th:replace="~{form_errors :: formErrorsFragment}"></div>
+			</div>
+			<textarea name="content" id="content" rows="10" class="form-control"></textarea>
+			<input type="submit" value="답변등록" class="btn btn-primary my-2">
+			<a href="/board/list" class="btn btn-primary my-2 mx-1" type="button">목록</a>
+		</form>
+	</div>
+</div>
+
+</html>
+
+<!-- jquery -->
+<script src="https://code.jquery.com/jquery-3.6.3.min.js"
+	integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+
+<!-- 카카오지도 api -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0b93daf5cbef3a42618d575496f57f22"></script>
+
+<script src="/js/resultMap.js"></script>
