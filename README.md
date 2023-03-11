@@ -3,3 +3,5 @@
 
 
 (W. 김견우, 고슬기, 공유진, 김하진, 박은희)
+
+<a href="PlaceProject/src/main/resources/templates/index.html>Go</a>
